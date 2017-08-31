@@ -20,18 +20,18 @@ struct node * create_node(char data){
 	printf("creating data with %c and adress %u\n",data,n);
 	return n;
 }
-
+#define DATA(n) (!n)?' ':n->data
 void print_node(struct node *n){
 	if(n){
+		printf("--------------------\n");
 		printf("node %c : %u\n",n->data,n);
 		printf("%c|%d\n",n->data,n->is_word);
-		printf("%u|%u|%u\n",n->left,n->equal,n->right);
+		printf("%u[%c] |%u[%c] | %u[%c]\n",n->left,DATA(n->left),n->equal,DATA(n->equal),n->right,DATA(n->right));
 	}
 }
 
 void mark_as_word(struct node *n){
 	n->is_word=1;
-	print_node(n);
 }
 
 void print_all(struct node *n){
@@ -88,12 +88,37 @@ void insert(struct node *n,char *word,int index,int length){
 	return;
 }
 
+struct node * find_start_node(struct node *n,char data){
+	if(n){
+		if(n->data == data){
+			return n;
+		}else if(n->data > data) {
+			return find_start_node(n->left,data);
+		}else {
+			return find_start_node(n->right,data);
+		}
+	}
+	return NULL;
+}
+
+void print_suggestion(struct node *n){
+	char pref[10]="";
+	int i=0;
+	while(n){
+		pref[i]=n->data;
+		if(n->is_word){
+			return;	
+			// todo
+		}
+	}
+}
+
 int main(){
 	struct node *root; 
 	int input;
 	char str[10];
 	scanf("%d",&input);
-	root = create_node('m');
+	root = create_node('c');
 	while(input--){
 		scanf("%s",str);
 		insert(root,str,0,strlen(str));
