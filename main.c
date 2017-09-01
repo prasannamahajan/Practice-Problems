@@ -20,6 +20,7 @@ struct node * create_node(char data){
 	printf("creating data with %c and adress %u\n",data,n);
 	return n;
 }
+struct node *root; 
 #define DATA(n) (!n)?' ':n->data
 void print_node(struct node *n){
 	if(n){
@@ -42,86 +43,96 @@ void print_all(struct node *n){
 		print_all(n->right);
 	}	
 }
+#define LEFT 1
+#define EQUAL 0
+#define RIGHT 2
+#define INVALID -1
 
-void insert(struct node *n,char *word,int index,int length){
-	printf("index = %d, current node = %c , alpha %c\n",index,n->data,word[index]);
-	int last=0;	
-	char calpha = word[index];
-	struct node * ptr;
-	last = (index == length - 1) ? true : false;
-	if(n->data == calpha){
-		printf("in equal\n");
-		if(last){
-			mark_as_word(n);
-		} else if(n->equal){
-			insert(n->equal,word,++index,length);
-		} else{
-			n->equal = create_node(word[index+1]);
-			insert(n->equal,word,++index,length);
-		}
-	} else if(calpha < n->data){
-		printf("in left\n");
-		if(n->left){
-			insert(n->left,word,index,length);
-		} else{
-			n->left = create_node(word[index]);
-			if(last){
-				mark_as_word(n->left);
-			} else {
-				insert(n->left,word,++index,length);
-			}
-		}
-	} else if(calpha > n->data){
-		printf("in right\n");
-		if(n->right){
-			insert(n->right,word,index,length);
-		} else{
-			n->right = create_node(word[index]);
-			if(last){
-				mark_as_word(n->right);
-			} else {
-				insert(n->right,word,++index,length);
-			}
-		}
-	}
-	print_node(n);
-	return;
+int find_relation(struct node *n, char alpha){
+	if(n->data == alpha)
+		return EQUAL;
+	else if(n->data < alpha)
+		return LEFT;
+	else
+		return RIGHT;
 }
 
-struct node * find_start_node(struct node *n,char data){
-	if(n){
-		if(n->data == data){
-			return n;
-		}else if(n->data > data) {
-			return find_start_node(n->left,data);
-		}else {
-			return find_start_node(n->right,data);
-		}
+struct node * nextNode(struct node *n,int relation){
+	switch (relation) {
+		case LEFT: 
+			return n->left;
+		case EQUAL: 
+			return n->equal;
+		case RIGHT: 
+			return n->right;
 	}
-	return NULL;
 }
 
-void print_suggestion(struct node *n){
-	char pref[10]="";
-	int i=0;
-	while(n){
-		pref[i]=n->data;
-		if(n->is_word){
-			return;	
-			// todo
+void save_node(struct node *parent,struct node *child,int relation){
+	if(!parent){
+		root = child;
+		return;
+	}
+	switch (relation) {
+		case LEFT: 
+			parent->left = child;
+			break;
+		case EQUAL: 
+			parent->equal = child;
+			break;
+		case RIGHT: 
+			parent->right = child;
+			break;
+	}
+}
+
+int proceed(struct node *root,char *data){
+	int index=0;
+	int length;
+	struct node *current,*parent=NULL;
+	int relation = INVALID;
+	current = root;
+	length = strlen(data);
+	while(index < length){
+		if(!current){
+			current = create_node(data[index]);
+			save_node(parent,current,relation);
+			parent = current;
+			current = current->equal;
+			relation = EQUAL;
+			index++;
+			continue;
+		}
+		relation = find_relation(current,data[index]);
+		if(relation == EQUAL){
+			parent = current;
+			current = current->equal;
+			save_node(parent,current,relation);
+			index++;
+			continue;
+		}
+		if(relation == LEFT){
+			parent = current;
+			current = current->left;
+			continue;
+		}
+		if(relation == RIGHT){
+			parent = current;
+			current = current->right;
+			continue;
 		}
 	}
+	mark_as_word(parent);
 }
 
 int main(){
-	struct node *root; 
 	int input;
 	char str[10];
 	scanf("%d",&input);
-	root = create_node('c');
+	root = NULL;
 	while(input--){
 		scanf("%s",str);
-		insert(root,str,0,strlen(str));
+		proceed(root,str);
 	}
 	printf("in printall \n\n");
 	print_all(root);
