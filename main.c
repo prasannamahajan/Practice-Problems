@@ -24,7 +24,10 @@ struct node *root;
 #define DATA(n) (!n)?' ':n->data
 void print_node(struct node *n){
 	if(n){
+
 		printf("--------------------\n");
+		printf("%c = %c | %c | %c [%d]\n",n->data,DATA(n->left),DATA(n->equal),DATA(n->right),n->is_word);
+		return;
 		printf("node %c : %u\n",n->data,n);
 		printf("%c|%d\n",n->data,n->is_word);
 		printf("%u[%c] |%u[%c] | %u[%c]\n",n->left,DATA(n->left),n->equal,DATA(n->equal),n->right,DATA(n->right));
@@ -43,18 +46,18 @@ void print_all(struct node *n){
 		print_all(n->right);
 	}	
 }
-#define LEFT 1
+#define LEFT -1
 #define EQUAL 0
-#define RIGHT 2
-#define INVALID -1
+#define RIGHT 1
+#define INVALID -2
 
 int find_relation(struct node *n, char alpha){
 	if(n->data == alpha)
 		return EQUAL;
 	else if(n->data < alpha)
-		return LEFT;
-	else
 		return RIGHT;
+	else
+		return LEFT;
 }
 
 struct node * nextNode(struct node *n,int relation){
@@ -73,6 +76,7 @@ void save_node(struct node *parent,struct node *child,int relation){
 		root = child;
 		return;
 	}
+	//printf("relation %c  to %c is %d\n",parent->data,child->data,relation);
 	switch (relation) {
 		case LEFT: 
 			parent->left = child;
