@@ -129,9 +129,59 @@ int proceed(struct node *root,char *data){
 	mark_as_word(parent);
 }
 
+void print_all_word(struct node *ptr,char *prefix, int len){
+	if(!ptr)
+		return;
+	prefix[len]=0;
+	if(ptr->is_word){
+		printf("word : %s%c\n",prefix,ptr->data);
+	}
+	print_all_word(ptr->left,prefix,len);
+	print_all_word(ptr->right,prefix,len);
+
+	prefix[len]=ptr->data;
+	prefix[len+1]=0;
+	print_all_word(ptr->equal,prefix,len+1);
+}
+
+struct node * find_node(struct node *ptr,char *prefix,int index){
+	int relation;
+	int iamlast;
+	if(!ptr)
+		return NULL;
+	relation = find_relation(ptr,prefix[index]);
+	switch (relation) {
+		case EQUAL: 
+			iamlast = (prefix[index+1] == 0) ?  1 : 0 ;
+			if(iamlast)
+				return ptr;
+			return find_node(ptr->equal,prefix,++index);
+			break;
+		case LEFT: 
+			return find_node(ptr->left,prefix,index);
+			break;
+		case RIGHT: 
+			return find_node(ptr->right,prefix,index);
+			break;
+	}
+}
+void search(struct node *root,char *prefix){
+	struct node *match = NULL;
+	printf("IN SEARCH RESULT \n");
+	match = find_node(root,prefix,0);
+	if(match) {
+		if(match->is_word)
+			printf("word : %s\n",prefix);
+		print_all_word(match->equal,prefix,strlen(prefix));
+	} else {
+		printf("no result found");
+	}
+}
+
 int main(){
 	int input;
 	char str[10];
+	char prefix[10];
 	scanf("%d",&input);
 	root = NULL;
 	while(input--){
@@ -140,5 +190,9 @@ int main(){
 	}
 	printf("in printall \n\n");
 	print_all(root);
+	scanf("%s",prefix);	
+	search(root,prefix);
+	//printf("in print all word\n");
+	//print_all_word(root,prefix,0);
 	return 0;
 }
