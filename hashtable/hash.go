@@ -60,17 +60,21 @@ func (h *HashMap) resize() {
 	fmt.Printf("Changing size = %d, capacity = %d, nodes = %d\n", h.size, h.capacity, h.totalNodes)
 
 	for _, bucket := range *oldBuckets {
-		curr := bucket.nextNode
+		curr := bucket
 		for curr != nil {
-			h.Put(curr.key, curr.value)
+			h.addPair(curr.key, curr.value)
 			curr = curr.nextNode
 		}
 	}
-	h.totalNodes /= 2
 }
 
 func (h *HashMap) Put(key int, value string) {
 	h.resize()
+	h.addPair(key, value)
+	h.totalNodes += 1
+}
+
+func (h *HashMap) addPair(key int, value string) {
 	node := &Node{
 		key:   key,
 		value: value,
@@ -78,7 +82,6 @@ func (h *HashMap) Put(key int, value string) {
 	index := h.hash(key)
 	head := &(*h.buckets)[index]
 	h.addToList(head, node)
-	h.totalNodes += 1
 }
 
 func (h *HashMap) addToList(head **Node, node *Node) {
