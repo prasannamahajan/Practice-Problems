@@ -20,12 +20,8 @@ type Node struct {
 	nextNode *Node
 }
 
-type Bucket struct {
-	nextNode *Node
-}
-
 type HashMap struct {
-	buckets    *[]Bucket
+	buckets    *[]*Node
 	size       int
 	totalNodes int
 	capacity   int
@@ -33,7 +29,7 @@ type HashMap struct {
 
 func (h *HashMap) Init() {
 	h.size = INITIAL_SIZE
-	v := make([]Bucket, h.size)
+	v := make([]*Node, h.size)
 	h.buckets = &v
 	h.capacity = h.size * MAX_NODES_IN_LIST
 }
@@ -57,7 +53,7 @@ func (h *HashMap) resize() {
 		fmt.Println("Max loadfactor reached", loadFactor)
 		h.size *= 2
 	}
-	v := make([]Bucket, h.size)
+	v := make([]*Node, h.size)
 	oldBuckets := h.buckets
 	h.buckets = &v
 	h.capacity = h.size * MAX_NODES_IN_LIST
@@ -80,7 +76,7 @@ func (h *HashMap) Put(key int, value string) {
 		value: value,
 	}
 	index := h.hash(key)
-	head := &(*h.buckets)[index].nextNode
+	head := &(*h.buckets)[index]
 	h.addToList(head, node)
 	h.totalNodes += 1
 }
@@ -116,7 +112,7 @@ func (h *HashMap) removeFromList(head **Node, key int) bool {
 
 func (h *HashMap) Get(key int) string {
 	index := h.hash(key)
-	curr := (*h.buckets)[index].nextNode
+	curr := (*h.buckets)[index]
 	for curr != nil {
 		if curr.key == key {
 			return curr.value
@@ -129,7 +125,7 @@ func (h *HashMap) Get(key int) string {
 func (h *HashMap) Remove(key int) {
 	h.resize()
 	index := h.hash(key)
-	head := &(*h.buckets)[index].nextNode
+	head := &(*h.buckets)[index]
 	if h.removeFromList(head, key) == true {
 		h.totalNodes--
 	}
@@ -138,7 +134,7 @@ func (h *HashMap) Remove(key int) {
 func (h *HashMap) Print() {
 	for i, bucket := range *h.buckets {
 		fmt.Print(i, "[")
-		curr := bucket.nextNode
+		curr := bucket
 		for curr != nil {
 			fmt.Print(curr.key, ":", curr.value, " ")
 			curr = curr.nextNode
