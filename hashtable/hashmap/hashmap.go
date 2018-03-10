@@ -155,3 +155,11 @@ func (h *HashMap) Print() {
 		fmt.Println("]")
 	}
 }
+
+func (h *HashMap) Stats() {
+	fmt.Printf("Size %d\t", h.size)
+	fmt.Printf("Capacity %d\t", h.capacity)
+	fmt.Printf("TotalNodes %d\t", h.totalNodes)
+	loadFactor := float64(h.totalNodes) / float64(h.capacity)
+	fmt.Printf("Loadfactor %.2f\n", loadFactor)
+}
