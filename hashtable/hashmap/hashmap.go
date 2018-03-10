@@ -1,13 +1,10 @@
-package main
+package hashmap
 
 import (
 	"fmt"
-	"strconv"
-	"time"
 )
 
 const (
-	EMPTY             = -1
 	INITIAL_SIZE      = 2
 	MIN_LOAD_FACTOR   = 0.10
 	MAX_LOAD_FACTOR   = 0.75
@@ -59,8 +56,8 @@ func (h *HashMap) resize() {
 	h.capacity = h.size * MAX_NODES_IN_LIST
 	fmt.Printf("Changing size = %d, capacity = %d, nodes = %d\n", h.size, h.capacity, h.totalNodes)
 
-	for _, bucket := range *oldBuckets {
-		curr := bucket
+	for _, listHead := range *oldBuckets {
+		curr := listHead
 		for curr != nil {
 			h.addPair(curr.key, curr.value)
 			curr = curr.nextNode
@@ -70,27 +67,40 @@ func (h *HashMap) resize() {
 
 func (h *HashMap) Put(key int, value string) {
 	h.resize()
-	h.addPair(key, value)
-	h.totalNodes += 1
+	if h.addPair(key, value) == true {
+		h.totalNodes++
+	}
 }
 
-func (h *HashMap) addPair(key int, value string) {
+func (h *HashMap) addPair(key int, value string) bool {
 	node := &Node{
 		key:   key,
 		value: value,
 	}
 	index := h.hash(key)
 	head := &(*h.buckets)[index]
-	h.addToList(head, node)
+	return h.addToList(head, node)
 }
 
-func (h *HashMap) addToList(head **Node, node *Node) {
+func (h *HashMap) addToList(head **Node, node *Node) bool {
 	if *head == nil {
 		*head = node
-		return
+		return true
 	}
-	node.nextNode = *head
-	*head = node
+	curr := *head
+	for {
+		if curr.key == node.key {
+			// Update the value if key already exist
+			curr.value = node.value
+			return false
+		}
+		if curr.nextNode == nil {
+			break
+		}
+		curr = curr.nextNode
+	}
+	curr.nextNode = node
+	return true
 }
 
 func (h *HashMap) removeFromList(head **Node, key int) bool {
@@ -126,11 +136,11 @@ func (h *HashMap) Get(key int) string {
 }
 
 func (h *HashMap) Remove(key int) {
-	h.resize()
 	index := h.hash(key)
 	head := &(*h.buckets)[index]
 	if h.removeFromList(head, key) == true {
 		h.totalNodes--
+		h.resize()
 	}
 }
 
@@ -144,52 +154,4 @@ func (h *HashMap) Print() {
 		}
 		fmt.Println("]")
 	}
-}
-
-func insert(h *HashMap, starting, elements int) {
-	for i := starting; i <= starting+elements; i++ {
-		//fmt.Printf("cap %d, total %d, inserting %d\n", h.capacity, h.totalNodes, i)
-		h.Put(i, strconv.Itoa(i))
-	}
-}
-
-func getall(h *HashMap, starting, elements int) {
-	for i := starting; i <= starting+elements; i++ {
-		h.Get(i)
-		//fmt.Println("get", v)
-	}
-}
-
-func deleteall(h *HashMap, starting, elements int) {
-	for i := starting + elements; i >= starting; i-- {
-		h.Remove(i)
-	}
-}
-
-func measure(fh func(*HashMap, int, int), h *HashMap, starting, elements int) {
-	start := time.Now()
-	fh(h, starting, elements)
-	elapsed := time.Since(start)
-	fmt.Println("time taken by", fh, "is", elapsed)
-}
-
-func main() {
-	h := new(HashMap)
-	h.Init()
-	h.Put(1, "prasanna")
-	h.Put(9, "mahajan")
-	h.Print()
-	fmt.Println("key stored at 9 ==> ", h.Get(9))
-	h.Remove(1)
-	fmt.Println("After deleting key at 9")
-	h.Print()
-	h.Put(9, "mahajan")
-	h.Remove(1)
-	fmt.Println("After deleting key at 1")
-	h.Print()
-	//v := 20
-	//measure(insert, h, 1, v)
-	//measure(getall, h, 1, v)
-	//measure(deleteall, h, 1, v)
-	//h.Print()
 }
