@@ -5,10 +5,10 @@ import (
 )
 
 const (
-	INITIAL_SIZE      = 2
-	MIN_LOAD_FACTOR   = 0.10
-	MAX_LOAD_FACTOR   = 0.75
-	MAX_NODES_IN_LIST = 5
+	DEFAULT_NO_OF_BUCKETS = 2
+	MIN_LOAD_FACTOR       = 0.10
+	MAX_LOAD_FACTOR       = 0.75
+	MAX_NODES_IN_BUCKET   = 5
 )
 
 type Node struct {
@@ -18,21 +18,21 @@ type Node struct {
 }
 
 type HashMap struct {
-	buckets    *[]*Node
-	size       int
-	totalNodes int
-	capacity   int
+	buckets         *[]*Node
+	numberOfBuckets int
+	totalNodes      int
+	capacity        int
 }
 
 func (h *HashMap) Init() {
-	h.size = INITIAL_SIZE
-	v := make([]*Node, h.size)
+	h.numberOfBuckets = DEFAULT_NO_OF_BUCKETS
+	v := make([]*Node, h.numberOfBuckets)
 	h.buckets = &v
-	h.capacity = h.size * MAX_NODES_IN_LIST
+	h.capacity = h.numberOfBuckets * MAX_NODES_IN_BUCKET
 }
 
 func (h *HashMap) hash(key int) int {
-	return key % h.size
+	return key % h.numberOfBuckets
 }
 
 func (h *HashMap) resize() {
@@ -41,20 +41,20 @@ func (h *HashMap) resize() {
 		return
 	}
 	if loadFactor <= MIN_LOAD_FACTOR {
-		if h.size == INITIAL_SIZE {
+		if h.numberOfBuckets == DEFAULT_NO_OF_BUCKETS {
 			return
 		}
 		fmt.Println("Min loadfactor reached", loadFactor)
-		h.size /= 2
+		h.numberOfBuckets /= 2
 	} else {
 		fmt.Println("Max loadfactor reached", loadFactor)
-		h.size *= 2
+		h.numberOfBuckets *= 2
 	}
-	v := make([]*Node, h.size)
+	v := make([]*Node, h.numberOfBuckets)
 	oldBuckets := h.buckets
 	h.buckets = &v
-	h.capacity = h.size * MAX_NODES_IN_LIST
-	fmt.Printf("Changing size = %d, capacity = %d, nodes = %d\n", h.size, h.capacity, h.totalNodes)
+	h.capacity = h.numberOfBuckets * MAX_NODES_IN_BUCKET
+	fmt.Printf("Changing buckets = %d, capacity = %d, nodes = %d\n", h.numberOfBuckets, h.capacity, h.totalNodes)
 
 	for _, listHead := range *oldBuckets {
 		curr := listHead
@@ -158,7 +158,7 @@ func (h *HashMap) Print() {
 }
 
 func (h *HashMap) Stats() {
-	fmt.Printf("Size %d\t", h.size)
+	fmt.Printf("Buckets %d\t", h.numberOfBuckets)
 	fmt.Printf("Capacity %d\t", h.capacity)
 	fmt.Printf("TotalNodes %d\t", h.totalNodes)
 	loadFactor := float64(h.totalNodes) / float64(h.capacity)
