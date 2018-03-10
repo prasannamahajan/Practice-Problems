@@ -118,6 +118,7 @@ func (h *HashMap) removeFromList(head **Node, key int) bool {
 			prev.nextNode = curr.nextNode
 			return true
 		}
+		prev = curr
 		curr = curr.nextNode
 	}
 	return false
