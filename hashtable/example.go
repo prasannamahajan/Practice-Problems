@@ -46,6 +46,7 @@ func help() {
 	fmt.Println("g|get <key>")
 	fmt.Println("r|remove <key>")
 	fmt.Println("s|show")
+	fmt.Println("stats")
 }
 
 func main() {
