@@ -19,10 +19,10 @@ type Node struct {
 }
 
 type HashMap struct {
-	buckets         *[]*Node
-	numberOfBuckets int
-	totalNodes      int
-	capacity        int
+	buckets         *[]*Node // pointer to array of buckets
+	numberOfBuckets int      // number of buckets in hashmap
+	totalNodes      int      // total number of key,value pair in hashmap
+	capacity        int      // maximum number of key,value pair hashmap should hold
 }
 
 var mutex sync.RWMutex
@@ -38,6 +38,9 @@ func (h *HashMap) hash(key int) int {
 	return key % h.numberOfBuckets
 }
 
+// resize does job of growing/shrinking the hashmap defending on loadfactor
+// if max load factor is reached then number of buckets get doubled.
+// if min load factor is reached then number of buckets get halved.
 func (h *HashMap) resize() {
 	loadFactor := float64(h.totalNodes) / float64(h.capacity)
 	if MIN_LOAD_FACTOR < loadFactor && loadFactor < MAX_LOAD_FACTOR {
@@ -68,6 +71,7 @@ func (h *HashMap) resize() {
 	}
 }
 
+// Put adds key,value pair in hashmap
 func (h *HashMap) Put(key int, value string) {
 	mutex.Lock()
 	defer mutex.Unlock()
@@ -87,6 +91,8 @@ func (h *HashMap) addPair(key int, value string) bool {
 	return h.addToList(head, node)
 }
 
+// addToList adds node to the end of link list. If node containing
+// same key already exist then it will update the value of that node
 func (h *HashMap) addToList(head **Node, node *Node) bool {
 	if *head == nil {
 		*head = node
@@ -108,6 +114,7 @@ func (h *HashMap) addToList(head **Node, node *Node) bool {
 	return true
 }
 
+// removeFromList removes the node with provided key from link list
 func (h *HashMap) removeFromList(head **Node, key int) bool {
 	if *head == nil {
 		return false
@@ -129,6 +136,7 @@ func (h *HashMap) removeFromList(head **Node, key int) bool {
 	return false
 }
 
+// Get returns the value string stored with provided key from hashmap
 func (h *HashMap) Get(key int) string {
 	mutex.RLock()
 	defer mutex.RUnlock()
@@ -143,6 +151,7 @@ func (h *HashMap) Get(key int) string {
 	return ""
 }
 
+// Remove removes the pair from hashmap.
 func (h *HashMap) Remove(key int) {
 	mutex.Lock()
 	defer mutex.Unlock()
@@ -154,6 +163,7 @@ func (h *HashMap) Remove(key int) {
 	}
 }
 
+// Print prints the hashmap
 func (h *HashMap) Print() {
 	mutex.RLock()
 	defer mutex.RUnlock()
@@ -168,6 +178,7 @@ func (h *HashMap) Print() {
 	}
 }
 
+// stats shows statistics of the hashmap
 func (h *HashMap) Stats() {
 	mutex.RLock()
 	defer mutex.RUnlock()
