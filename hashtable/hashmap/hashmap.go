@@ -2,6 +2,7 @@ package hashmap
 
 import (
 	"fmt"
+	"sync"
 )
 
 const (
@@ -23,6 +24,8 @@ type HashMap struct {
 	totalNodes      int
 	capacity        int
 }
+
+var mutex sync.RWMutex
 
 func (h *HashMap) Init() {
 	h.numberOfBuckets = DEFAULT_NO_OF_BUCKETS
@@ -66,6 +69,8 @@ func (h *HashMap) resize() {
 }
 
 func (h *HashMap) Put(key int, value string) {
+	mutex.Lock()
+	defer mutex.Unlock()
 	h.resize()
 	if h.addPair(key, value) == true {
 		h.totalNodes++
@@ -125,6 +130,8 @@ func (h *HashMap) removeFromList(head **Node, key int) bool {
 }
 
 func (h *HashMap) Get(key int) string {
+	mutex.RLock()
+	defer mutex.RUnlock()
 	index := h.hash(key)
 	curr := (*h.buckets)[index]
 	for curr != nil {
@@ -137,6 +144,8 @@ func (h *HashMap) Get(key int) string {
 }
 
 func (h *HashMap) Remove(key int) {
+	mutex.Lock()
+	defer mutex.Unlock()
 	index := h.hash(key)
 	head := &(*h.buckets)[index]
 	if h.removeFromList(head, key) == true {
@@ -146,6 +155,8 @@ func (h *HashMap) Remove(key int) {
 }
 
 func (h *HashMap) Print() {
+	mutex.RLock()
+	defer mutex.RUnlock()
 	for i, bucket := range *h.buckets {
 		fmt.Print(i, "[")
 		curr := bucket
@@ -158,6 +169,8 @@ func (h *HashMap) Print() {
 }
 
 func (h *HashMap) Stats() {
+	mutex.RLock()
+	defer mutex.RUnlock()
 	fmt.Printf("Buckets %d\t", h.numberOfBuckets)
 	fmt.Printf("Capacity %d\t", h.capacity)
 	fmt.Printf("TotalNodes %d\t", h.totalNodes)
