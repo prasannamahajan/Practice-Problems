@@ -10,7 +10,7 @@ const (
 	DEFAULT_NO_OF_BUCKETS = 2
 	MIN_LOAD_FACTOR       = 0.10
 	MAX_LOAD_FACTOR       = 0.75
-	MAX_NODES_IN_BUCKET   = 5
+	MAX_NODES_IN_BUCKET   = 5 // Approx number of nodes in bucket list. It is used to calculate the capacity and load factor of hashmap
 )
 
 type Node struct {
