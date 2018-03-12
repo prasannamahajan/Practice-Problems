@@ -2,6 +2,7 @@ package hashmap
 
 import (
 	"fmt"
+	"log"
 	"sync"
 )
 
@@ -50,17 +51,17 @@ func (h *HashMap) resize() {
 		if h.numberOfBuckets == DEFAULT_NO_OF_BUCKETS {
 			return
 		}
-		fmt.Println("Min loadfactor reached", loadFactor)
+		log.Println("Min loadfactor reached", loadFactor)
 		h.numberOfBuckets /= 2
 	} else {
-		fmt.Println("Max loadfactor reached", loadFactor)
+		log.Println("Max loadfactor reached", loadFactor)
 		h.numberOfBuckets *= 2
 	}
 	v := make([]*Node, h.numberOfBuckets)
 	oldBuckets := h.buckets
 	h.buckets = &v
 	h.capacity = h.numberOfBuckets * MAX_NODES_IN_BUCKET
-	fmt.Printf("Changing buckets = %d, capacity = %d, nodes = %d\n", h.numberOfBuckets, h.capacity, h.totalNodes)
+	log.Printf("Changing buckets = %d, capacity = %d, nodes = %d\n", h.numberOfBuckets, h.capacity, h.totalNodes)
 
 	for _, listHead := range *oldBuckets {
 		curr := listHead
