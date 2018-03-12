@@ -1,0 +1,25 @@
+Overview :-
+    golang thread-safe hashmap where key is integer, value is string
+
+Usage :-
+    Initialise the hashmap
+        	map := new(hashmap.HashMap)
+        	map.Init()
+
+    Put the key in hashmap
+            map.Put(111,"prasanna")
+
+    Get the value from hashmap
+            value := map.Get(111)
+
+    Remove the key from hashmap
+            map.Remove(111)
+
+    Print the hashmap 
+            map.Print()
+
+    Show statistics of hashmap
+            map.Stats()
+
+To run example
+    go run example.go
