@@ -149,6 +149,7 @@ func (h *HashMap) Get(key int) string {
 		}
 		curr = curr.nextNode
 	}
+	log.Println("Could not find key", key)
 	return ""
 }
 
@@ -161,6 +162,8 @@ func (h *HashMap) Remove(key int) {
 	if h.removeFromList(head, key) == true {
 		h.totalNodes--
 		h.resize()
+	} else {
+		log.Println("Could not find key", key)
 	}
 }
 
